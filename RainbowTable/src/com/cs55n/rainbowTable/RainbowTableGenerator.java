@@ -1,5 +1,7 @@
 package com.cs55n.rainbowTable;
 
+import java.io.File;
+
 /* This class will be used to generate the RainbowTable
  * It needs to take N and K as inputs, then output a
  * rainbow table using those values. It needs to avoid collisions
@@ -8,5 +10,14 @@ package com.cs55n.rainbowTable;
  */
 
 public class RainbowTableGenerator {
-
+	private int passwordLength;
+	private int steps;
+	public RainbowTableGenerator(int passwordLength, int steps){
+		this.steps = steps;
+		this.passwordLength = passwordLength;
+	}
+	//generates a rainbowTable at file
+	public void generate(File file){
+		
+	}
 }
