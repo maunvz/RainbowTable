@@ -42,12 +42,24 @@ public class MathOps {
 	byte[] hash(byte[] strBytes){
 		return digest.digest(strBytes);
 	}
-	//returns an 8 byte long representation of bytes
-	//change this to use K different reduction formulas, one per col
-	byte[] reduce(byte[] bytes){
+	//returns a passwordLength byte long representation of bytes, using k to choose which bytes are used
+	//works for k up to (2^passwordLength+1)-2. After that, every 2^n-1 where n is greater than passwordLength will
+	//be the same as all the other 2^n-1's where n is greater than passwordLength
+	//currently max k is 510 when passwordLength is 8
+	byte[] reduce(byte[] bytes, int k){
+		int mask = 1;
+		for(int i=0; i<passwordLength; i++)mask*=2;
+		mask-=1;
+		mask = mask << 32-passwordLength;
+		mask = mask | k; //creates an int whose 32-bit representation has at least passwordLength 1's in it
+		
 		byte[] reduced = new byte[passwordLength];
-		for(int i=0; i<passwordLength; i++){
-			reduced[i] = bytes[i];
+		int byteNo = 0;
+		for(int i=0; i<32&&byteNo<passwordLength; i++){
+			if((mask & 1) == 1){
+				reduced[byteNo++] = bytes[i];
+			}
+			mask = mask >> 1;
 		}
 		return reduced;
 	}
