@@ -43,6 +43,7 @@ public class MathOps {
 		return digest.digest(strBytes);
 	}
 	//returns an 8 byte long representation of bytes
+	//change this to use K different reduction formulas, one per col
 	byte[] reduce(byte[] bytes){
 		byte[] reduced = new byte[passwordLength];
 		for(int i=0; i<passwordLength; i++){

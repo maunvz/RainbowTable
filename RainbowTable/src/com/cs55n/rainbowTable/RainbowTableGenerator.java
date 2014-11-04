@@ -12,9 +12,11 @@ import java.io.File;
 public class RainbowTableGenerator {
 	private int passwordLength;
 	private int steps;
+	private MathOps mathops;
 	public RainbowTableGenerator(int passwordLength, int steps){
 		this.steps = steps;
 		this.passwordLength = passwordLength;
+		mathops = new MathOps(passwordLength);
 	}
 	//generates a rainbowTable at file
 	public void generate(File file){

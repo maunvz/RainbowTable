@@ -8,6 +8,8 @@ import java.io.File;
  */
 
 public class RainbowTable {
+	//2^28 would be a good size according to the article
+	//try K of 128, 256, 512, 1024
 	public RainbowTable(){
 		
 	}
