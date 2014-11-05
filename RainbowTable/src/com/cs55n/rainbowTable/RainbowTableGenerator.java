@@ -12,14 +12,20 @@ import java.io.File;
 public class RainbowTableGenerator {
 	private int passwordLength;
 	private int steps;
+	private int chains;
 	private MathOps mathops;
-	public RainbowTableGenerator(int passwordLength, int steps){
+	public RainbowTableGenerator(int passwordLength, int chains, int steps){
 		this.steps = steps;
+		this.chains = chains;
 		this.passwordLength = passwordLength;
 		mathops = new MathOps(passwordLength);
 	}
 	//generates a rainbowTable at file
-	public void generate(File file){
+	public RainbowTable generate(File file){
+		RainbowTable table = new RainbowTable();
+		//generate it here
 		
+		table.saveToFile(file);
+		return table;
 	}
 }
