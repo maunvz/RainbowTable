@@ -12,6 +12,7 @@ public class RainbowTableLoader extends SwingWorker<Void, Integer>{
 	UserInterface.GenerationDisplay display;
 	UserInterface ui;
 	public RainbowTableLoader(File file, RainbowTable table, UserInterface.GenerationDisplay display, UserInterface ui){
+		super();
 		this.file = file;
 		this.table = table;
 		this.display = display;
@@ -32,6 +33,7 @@ public class RainbowTableLoader extends SwingWorker<Void, Integer>{
 			byte[] lengthBytes = new byte[4];
 			fis.read(lengthBytes, 0, 4);
 			int length = MathOps.bytesToInt(lengthBytes);
+			display.setStatus("Loading chains");
 			display.setNK(length, 0);
 			table.chains = new byte[length][2][0];
 			for(int i=0; i<length; i++){
@@ -40,6 +42,7 @@ public class RainbowTableLoader extends SwingWorker<Void, Integer>{
 				fis.read(table.chains[i][0]);
 				fis.read(table.chains[i][1]);
 				display.setDone(i+1);
+				System.out.println(MathOps.bytesToHex(table.chains[i][0])+" "+MathOps.bytesToHex(table.chains[i][1]));
 			}
 			fis.close();
 		} catch (IOException e) {

@@ -92,4 +92,12 @@ public class MathOps {
 	    }
 	    return value;
 	}
+	//returns 1 if b1 is greater, -1 if b2 is greater, 0 is equal
+	public static int compareBytes(byte[] b1, byte[] b2){
+		for(int i=0; i<b1.length&&i<b2.length;i++){
+			if(b1[i]>b2[i])return 1;
+			if(b2[i]>b1[i])return -1;
+		}
+		return 0;
+	}
 }

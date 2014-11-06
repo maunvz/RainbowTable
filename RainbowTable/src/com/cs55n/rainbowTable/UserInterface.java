@@ -98,18 +98,20 @@ public class UserInterface extends JFrame{
 	}
 	class GenerationDisplay extends JPanel{
 		private static final long serialVersionUID = 1L;
+		JLabel status_label;
 		JLabel steps_label;
 		JLabel chains_label;
 		JLabel progress_label;
 		JProgressBar progress_bar;
 		int total;
 		public GenerationDisplay(){
+			status_label = new JLabel("Current Task: ");
 			steps_label = new JLabel("Total Steps: ");
 			chains_label = new JLabel("Total Chains: ");
 			progress_label = new JLabel("Finished: ");
 			progress_bar = new JProgressBar();
-			
 			this.setLayout(new GridLayout(0,1));
+			this.add(status_label);
 			this.add(steps_label);
 			this.add(chains_label);
 			this.add(progress_label);
@@ -124,6 +126,9 @@ public class UserInterface extends JFrame{
 		public void setDone(int done){
 			progress_bar.setValue(done);
 			progress_label.setText("Finished: "+done+"/"+total);
+		}
+		public void setStatus(String status){
+			status_label.setText("Current Task: " + status);
 		}
 	}
 	class SearchPanel extends JPanel{

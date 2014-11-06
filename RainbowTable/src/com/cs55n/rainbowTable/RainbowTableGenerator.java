@@ -18,6 +18,7 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	UserInterface.GenerationDisplay display;
 	UserInterface ui;
 	public RainbowTableGenerator(File file,int passwordLength, int chains, int steps, UserInterface.GenerationDisplay display, UserInterface ui){
+		super();
 		this.file = file;
 		this.passwordLength = passwordLength;
 		this.chains = chains;
@@ -32,7 +33,8 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	protected void done(){
 		ui.tableReady();
 	}
-	public void generate(){		
+	public void generate(){
+		display.setStatus("Generating chains");
 		MathOps mathops = new MathOps(passwordLength);
 		RainbowTable table = new RainbowTable(chains);
 		Random rand = new Random();
@@ -50,7 +52,10 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 			table.addChain(chain);
 			display.setDone(i+1);
 		}
-		RainbowTableSaver.saveToFile(file, table);
+		display.setStatus("Sorting chains");
+		new RainbowTableSorter(table, display, ui).execute();
+		display.setStatus("Saving chains");
+		new RainbowTableSaver(file, table, display, ui).execute();;
 		ui.table = table;
 	}
 	public static char[] getCharset(){

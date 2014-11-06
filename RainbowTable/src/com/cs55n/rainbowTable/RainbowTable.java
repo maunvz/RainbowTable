@@ -17,9 +17,8 @@ public class RainbowTable {
 		chains = new byte[n][2][0];
 		lastIndex=0;
 	}
-	public int addChain(byte[][] chain){
+	public void addChain(byte[][] chain){
 		chains[lastIndex++]=chain;
-		return lastIndex;
 	}
 	public String breakHash(){
 		return "";
