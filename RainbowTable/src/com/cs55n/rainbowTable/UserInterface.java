@@ -104,6 +104,7 @@ public class UserInterface extends JFrame{
 		JLabel progress_label;
 		JProgressBar progress_bar;
 		int total;
+		int current;
 		public GenerationDisplay(){
 			status_label = new JLabel("Current Task: ");
 			steps_label = new JLabel("Total Steps: ");
@@ -116,6 +117,7 @@ public class UserInterface extends JFrame{
 			this.add(chains_label);
 			this.add(progress_label);
 			this.add(progress_bar);
+			current = 0;
 		}
 		public void setNK(int total, int steps){
 			steps_label.setText("Total Steps: "+steps);
@@ -124,8 +126,12 @@ public class UserInterface extends JFrame{
 			this.total=total;
 		}
 		public void setDone(int done){
+			current = done;
 			progress_bar.setValue(done);
 			progress_label.setText("Finished: "+done+"/"+total);
+		}
+		public void incrementDone(){
+			setDone(current+1);
 		}
 		public void setStatus(String status){
 			status_label.setText("Current Task: " + status);
