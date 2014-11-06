@@ -29,6 +29,7 @@ public class RainbowTableSaver extends SwingWorker<Void, Integer>{
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(ByteBuffer.allocate(4).putInt(table.chains.length).array());
+			fos.write(ByteBuffer.allocate(4).putInt(table.steps).array());
 			for(int i=0; i<table.chains.length; i++){
 				fos.write(table.chains[i][0]);
 				fos.write(table.chains[i][1]);

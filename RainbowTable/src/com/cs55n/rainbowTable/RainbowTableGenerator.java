@@ -36,12 +36,12 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	public void generate(){
 		display.setStatus("Generating chains");
 		MathOps mathops = new MathOps(passwordLength);
-		RainbowTable table = new RainbowTable(chains);
+		RainbowTable table = new RainbowTable(chains, steps);
 		Random rand = new Random();
 		char[] charset = getCharset();
 		//generate it here
 		for(int i=0; i<chains; i++){
-			byte[][] chain = new byte[2][0];
+			byte[][] chain = new byte[2][];
 			byte[] start = randomPassword(passwordLength, charset, rand);
 			byte[] end = mathops.hash(start);
 			for(int j=0; j<steps-1; j++){

@@ -86,7 +86,7 @@ public class UserInterface extends JFrame{
 		JFileChooser fc = new JFileChooser();
 		fc.showOpenDialog(this);
 		fc.getSelectedFile();
-		table = new RainbowTable(0);
+		table = new RainbowTable(0, 0);
 		new RainbowTableLoader(fc.getSelectedFile(), table, display, this).execute();
 	}
 	public void tableReady(){
@@ -147,6 +147,12 @@ public class UserInterface extends JFrame{
 			hash_field = new JTextField();
 			hash_field.setColumns(32);
 			search_button = new JButton("Search");
+			search_button.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					new RainbowTableSearcher(hash_field.getText(), table, display, UserInterface.this).execute();
+				}
+			});
 			
 			setLayout(new FlowLayout());
 			add(hash_label);
