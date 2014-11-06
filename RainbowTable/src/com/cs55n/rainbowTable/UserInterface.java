@@ -1,9 +1,11 @@
 package com.cs55n.rainbowTable;
 
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -26,33 +28,28 @@ import javax.swing.JTextField;
 public class UserInterface extends JFrame{
 	private static final long serialVersionUID = 1L;
 	RainbowTable table;
-	JPanel mainPanel;
+	TablePanel tablePanel;
+	SearchPanel searchPanel;
+	GenerationDisplay display;
+	
 	public UserInterface(){
 		super();
-		mainPanel = new JPanel();
-		setTitle("Rainbow Table Tool");
+		setTitle("Rainbow Table Tool");	
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
-		//Will ask for a N and K and path, then generate a table
-		JButton gen_button = new JButton("Generate Table");
-		gen_button.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getTableParameters();
-			}
-		});
 		
-		//Will ask for path, then load a table
-		JButton load_button = new JButton("Load Table");
-		load_button.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				openTable();
-			}
-		});
+		tablePanel = new TablePanel();
+		panel.add(tablePanel);
 		
-		mainPanel.add(gen_button);
-		mainPanel.add(load_button);
-		add(mainPanel);
+		display = new GenerationDisplay();
+		panel.add(display);
+		
+		searchPanel = new SearchPanel();
+		searchPanel.setEnabled(false);
+		panel.add(searchPanel);
+		
+		add(panel);
 		pack();
 		this.setLocation(400,400);
 		setVisible(true);
@@ -77,9 +74,7 @@ public class UserInterface extends JFrame{
 			try{
 				final int n = Integer.parseInt(n_input.getText());
 				final int k = Integer.parseInt(k_input.getText());
-				final GenerationDisplay display = new GenerationDisplay(n, k);
-				mainPanel.add(display);
-				pack();
+				display.setNK(n, k);
 				RainbowTableGenerator gen = new RainbowTableGenerator(fc.getSelectedFile(), 8, n, k, display, this);
 				gen.execute();
 			} catch (NumberFormatException e){
@@ -92,7 +87,11 @@ public class UserInterface extends JFrame{
 		fc.showOpenDialog(this);
 		fc.getSelectedFile();
 		table = new RainbowTable(0);
-		table.loadFromFile(fc.getSelectedFile());
+		new RainbowTableLoader(fc.getSelectedFile(), table, display, this).execute();
+	}
+	public void tableReady(){
+		tablePanel.setEnabled(false);
+		searchPanel.setEnabled(true);
 	}
 	public static void main(String args[]){
 		new UserInterface();
@@ -104,13 +103,11 @@ public class UserInterface extends JFrame{
 		JLabel progress_label;
 		JProgressBar progress_bar;
 		int total;
-		public GenerationDisplay(int total, int steps){
-			steps_label = new JLabel("Total Steps: " + steps);
-			chains_label = new JLabel("Total Chains: " + total);
+		public GenerationDisplay(){
+			steps_label = new JLabel("Total Steps: ");
+			chains_label = new JLabel("Total Chains: ");
 			progress_label = new JLabel("Finished: ");
 			progress_bar = new JProgressBar();
-			progress_bar.setMaximum(total);
-			this.total=total;
 			
 			this.setLayout(new GridLayout(0,1));
 			this.add(steps_label);
@@ -118,10 +115,69 @@ public class UserInterface extends JFrame{
 			this.add(progress_label);
 			this.add(progress_bar);
 		}
+		public void setNK(int total, int steps){
+			steps_label.setText("Total Steps: "+steps);
+			chains_label.setText("Total Chains: "+total);
+			progress_bar.setMaximum(total);
+			this.total=total;
+		}
 		public void setDone(int done){
 			progress_bar.setValue(done);
 			progress_label.setText("Finished: "+done+"/"+total);
 		}
 	}
+	class SearchPanel extends JPanel{
+		private static final long serialVersionUID = 1L;
+		JLabel hash_label;
+		JTextField hash_field;
+		JButton search_button;
+		public SearchPanel(){
+			hash_label = new JLabel("Hash: ");
+			hash_field = new JTextField();
+			hash_field.setColumns(32);
+			search_button = new JButton("Search");
+			
+			setLayout(new FlowLayout());
+			add(hash_label);
+			add(hash_field);
+			add(search_button);
+		}
+		public void setEnabled(boolean enabled){
+			super.setEnabled(enabled);
+			hash_label.setEnabled(enabled);
+			hash_field.setEnabled(enabled);
+			search_button.setEnabled(enabled);
+		}
+	}
+	class TablePanel extends JPanel{
+		private static final long serialVersionUID = 1L;
+		JButton load_button;
+		JButton gen_button;
+		public TablePanel(){
+			//Will ask for a N and K and path, then generate a table
+			gen_button = new JButton("Generate Table");
+			gen_button.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					getTableParameters();
+				}
+			});
+			
+			//Will ask for path, then load a table
+			load_button = new JButton("Load Table");
+			load_button.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					openTable();
+				}
+			});
+			add(gen_button);
+			add(load_button);			
+		}
+		public void setEnabled(boolean enabled){
+			super.setEnabled(enabled);
+			gen_button.setEnabled(enabled);
+			load_button.setEnabled(enabled);
+		}
+	}
 }
-

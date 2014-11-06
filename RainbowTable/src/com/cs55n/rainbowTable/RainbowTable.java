@@ -1,10 +1,5 @@
 package com.cs55n.rainbowTable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /* This class needs a data structure to hold all the
  * start/end points for the generated chains, a searching
@@ -28,41 +23,5 @@ public class RainbowTable {
 	}
 	public String breakHash(){
 		return "";
-	}
-	//saves 4 bytes for number of chains, then the pairs (8 bytes start, 32 end) repeating
-	public void saveToFile(File file){
-		if(lastIndex != chains.length){
-			System.out.println("Table not fully generated");
-			return;
-		}
-		try {
-			FileOutputStream fos = new FileOutputStream(file);
-			fos.write(ByteBuffer.allocate(4).putInt(chains.length).array());
-			for(int i=0; i<chains.length; i++){
-				fos.write(chains[i][0]);
-				fos.write(chains[i][1]);
-			}
-			fos.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	public void loadFromFile(File file){
-		try {
-			FileInputStream fis = new FileInputStream(file);
-			byte[] lengthBytes = new byte[4];
-			fis.read(lengthBytes, 0, 4);
-			int length = MathOps.bytesToInt(lengthBytes);
-			chains = new byte[length][2][0];
-			for(int i=0; i<length; i++){
-				chains[i][0] = new byte[8];
-				chains[i][1] = new byte[32];
-				fis.read(chains[i][0]);
-				fis.read(chains[i][1]);
-			}
-			fis.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
