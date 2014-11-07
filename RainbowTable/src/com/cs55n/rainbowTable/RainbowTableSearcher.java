@@ -14,7 +14,7 @@ public class RainbowTableSearcher extends SwingWorker<Void, Integer>{
 		this.hash = hash;
 		this.display = display;
 		this.table = table;
-		mathops = new MathOps(8);
+		mathops = new MathOps(6);
 	}
 	@Override
 	protected Void doInBackground() throws Exception {
@@ -25,7 +25,7 @@ public class RainbowTableSearcher extends SwingWorker<Void, Integer>{
 	}
 	public String breakHash(String hash){
 		display.setStatus("Searching....");
-		byte[] hashBytes = mathops.hash("AkpaDLEt".getBytes());//MathOps.hexToBytes(hash);
+		byte[] hashBytes = MathOps.hexToBytes(hash);
 		for(int i=0; i<table.steps; i++){
 			System.out.println(MathOps.bytesToHex(hashBytes));
 			int index = searchB(hashBytes);

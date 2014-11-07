@@ -75,7 +75,7 @@ public class UserInterface extends JFrame{
 				final int n = Integer.parseInt(n_input.getText());
 				final int k = Integer.parseInt(k_input.getText());
 				display.setNK(n, k);
-				RainbowTableGenerator gen = new RainbowTableGenerator(fc.getSelectedFile(), 8, n, k, display, this);
+				RainbowTableGenerator gen = new RainbowTableGenerator(fc.getSelectedFile(), 6, n, k, display, this);
 				gen.execute();
 			} catch (NumberFormatException e){
 				JOptionPane.showConfirmDialog(null, "Please input numbers only", "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE);

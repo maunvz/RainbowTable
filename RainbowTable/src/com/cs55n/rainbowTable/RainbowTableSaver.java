@@ -24,7 +24,7 @@ public class RainbowTableSaver extends SwingWorker<Void, Integer>{
 		saveToFile();
 		return null;
 	}
-	//saves 4 bytes for number of chains, then the pairs (8 bytes start, 32 end) repeating
+	//saves 4 bytes for number of chains, then the pairs (6 bytes start, 32 end) repeating
 	public void saveToFile(){
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
@@ -33,7 +33,7 @@ public class RainbowTableSaver extends SwingWorker<Void, Integer>{
 			for(int i=0; i<table.chains.length; i++){
 				fos.write(table.chains[i][0]);
 				fos.write(table.chains[i][1]);
-				System.out.println(MathOps.bytesToHex(table.chains[i][0])+" "+MathOps.bytesToHex(table.chains[i][1]));
+				System.out.println(new String(table.chains[i][0])+" "+MathOps.bytesToHex(table.chains[i][1]));
 				display.setDone(i+1);
 			}
 			fos.close();

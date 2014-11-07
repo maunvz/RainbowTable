@@ -40,7 +40,7 @@ public class RainbowTableLoader extends SwingWorker<Void, Integer>{
 			table.chains = new byte[length][2][0];
 			table.steps = steps;
 			for(int i=0; i<length; i++){
-				table.chains[i][0] = new byte[8];
+				table.chains[i][0] = new byte[6];
 				table.chains[i][1] = new byte[32];
 				fis.read(table.chains[i][0]);
 				fis.read(table.chains[i][1]);
