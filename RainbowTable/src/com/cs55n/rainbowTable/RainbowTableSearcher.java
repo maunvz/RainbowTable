@@ -27,7 +27,6 @@ public class RainbowTableSearcher extends SwingWorker<Void, Integer>{
 		display.setStatus("Searching....");
 		byte[] hashBytes = MathOps.hexToBytes(hash);
 		for(int i=0; i<table.steps; i++){
-			System.out.println(MathOps.bytesToHex(hashBytes));
 			int index = searchB(hashBytes);
 			if(index!=-1){
 				return "Found at index: "+index+" chain number "+i;

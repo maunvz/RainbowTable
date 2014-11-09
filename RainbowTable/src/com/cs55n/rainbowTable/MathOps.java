@@ -14,7 +14,6 @@ import java.util.Random;
 public class MathOps {
 	int passwordLength;
 	MessageDigest digest;
-	char[] charset = {'a','b','c','d','e','f'};
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 	Random rand;
 	public MathOps(int passwordLength){
@@ -29,14 +28,6 @@ public class MathOps {
 			if(arr1[i]!=arr2[i])return false;
 		}
 		return true;
-	}
-	//Generates a random passwordLength-long password using the characters in charset 
-	byte[] randomPassword(){
-		String pass="";
-		for(int i=0; i<passwordLength; i++){
-			pass+=charset[rand.nextInt(charset.length)];
-		}
-		return pass.getBytes();
 	}
 	//returns a 32-byte hash of bytes
 	byte[] hash(byte[] strBytes){
