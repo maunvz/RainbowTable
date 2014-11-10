@@ -15,7 +15,7 @@ public class RainbowTable {
 	int lastIndex;
 	int steps;
 	public RainbowTable(int n, int steps){
-		chains = new byte[n][2][0];
+		chains = new byte[n][][];
 		lastIndex=0;
 		this.steps = steps;
 	}

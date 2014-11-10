@@ -93,9 +93,6 @@ public class UserInterface extends JFrame{
 		tablePanel.setEnabled(false);
 		searchPanel.setEnabled(true);
 	}
-	public static void main(String args[]){
-		new UserInterface();
-	}
 	class GenerationDisplay extends JPanel{
 		private static final long serialVersionUID = 1L;
 		JLabel status_label;
@@ -196,5 +193,14 @@ public class UserInterface extends JFrame{
 			gen_button.setEnabled(enabled);
 			load_button.setEnabled(enabled);
 		}
+	}
+	public static void main(String args[]){
+		new UserInterface();
+		/*
+		System.out.println("start");
+		long time = System.nanoTime();
+		//code to test
+		System.out.println("end: " + (System.nanoTime()-time)/1000000);
+		*/
 	}
 }
