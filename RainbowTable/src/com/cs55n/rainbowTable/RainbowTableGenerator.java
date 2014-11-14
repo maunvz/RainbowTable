@@ -1,8 +1,12 @@
 package com.cs55n.rainbowTable;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 
+import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 
 /* This class will be used to generate the RainbowTable
@@ -17,6 +21,8 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	int passwordLength, chains, steps;
 	UserInterface.GenerationDisplay display;
 	UserInterface ui;
+	boolean export;
+	StringBuffer csv;
 	public RainbowTableGenerator(File file,int passwordLength, int chains, int steps, UserInterface.GenerationDisplay display, UserInterface ui){
 		super();
 		this.file = file;
@@ -25,6 +31,7 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 		this.steps = steps;
 		this.ui = ui;
 		this.display = display;
+		export = false;
 	}
 	protected Void doInBackground() throws Exception {
 		generate();
@@ -32,6 +39,20 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	}
 	protected void done(){
 		ui.tableReady();
+		if(export){
+			JFileChooser fc2 = new JFileChooser();
+			fc2.showSaveDialog(ui);
+			
+			BufferedWriter out;
+			try {
+				out = new BufferedWriter(new FileWriter(fc2.getSelectedFile()));
+				out.write(csv.toString());  
+			    out.flush();  
+			    out.close(); 
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	public void generate(){
 		display.setStatus("Generating chains");
@@ -39,18 +60,25 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 		RainbowTable table = new RainbowTable(chains, steps);
 		Random rand = new Random();
 		char[] charset = getCharset();
+		csv = new StringBuffer();
 		//generate it here
 		for(int i=0; i<chains; i++){
 			byte[][] chain = new byte[2][];
 			byte[] start = randomPassword(passwordLength, charset, rand);
 			byte[] end = mathops.hash(start);
+			if(export){
+				csv.append(MathOps.bytesToHex(start)+",");
+				csv.append(MathOps.bytesToHex(end)+",");
+			}
 			for(int j=0; j<steps-1; j++){
 				end = mathops.hash(mathops.reduce(end, j));
+				if(export)csv.append(MathOps.bytesToHex(end)+",");
 			}
 			chain[0] = start;
 			chain[1] = end;
 			table.addChain(chain);
 			display.setDone(i+1);
+			if(export)csv.append("\n");
 		}
 		display.setStatus("Sorting chains");
 		new RainbowTableSorter(table, display, ui).execute();

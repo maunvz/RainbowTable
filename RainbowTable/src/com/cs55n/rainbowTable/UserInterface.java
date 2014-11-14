@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -56,26 +57,33 @@ public class UserInterface extends JFrame{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	public void getTableParameters(){
-		final JFileChooser fc = new JFileChooser();
-		fc.showSaveDialog(this);
-
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(0,2));
 		JTextField n_input = new JTextField();n_input.setColumns(12);
 		JLabel n_label = new JLabel("Number of chains: ");
 		JTextField k_input = new JTextField();k_input.setColumns(12);
 		JLabel k_label = new JLabel("Number of steps: ");
+		JLabel csv_label = new JLabel("Export CSV: ");
+		JCheckBox csv_input = new JCheckBox();
+		
 		panel.add(n_label);
 		panel.add(n_input);
 		panel.add(k_label);
 		panel.add(k_input);
+		panel.add(csv_label);
+		panel.add(csv_input);
+		
 		int selection = JOptionPane.showConfirmDialog(null, panel, "Generate new Rainbow Table", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if(selection == JOptionPane.OK_OPTION){
 			try{
+				final JFileChooser fc = new JFileChooser();
+				fc.showSaveDialog(this);
+
 				final int n = Integer.parseInt(n_input.getText());
 				final int k = Integer.parseInt(k_input.getText());
 				display.setNK(n, k);
 				RainbowTableGenerator gen = new RainbowTableGenerator(fc.getSelectedFile(), 6, n, k, display, this);
+				gen.export = csv_input.isSelected();
 				gen.execute();
 			} catch (NumberFormatException e){
 				JOptionPane.showConfirmDialog(null, "Please input numbers only", "Error", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE);
