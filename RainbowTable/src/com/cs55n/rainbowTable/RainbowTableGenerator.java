@@ -66,12 +66,15 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 			byte[][] chain = new byte[2][];
 			byte[] start = randomPassword(passwordLength, charset, rand);
 			byte[] end = mathops.hash(start);
+			byte[] reduced;
 			if(export){
-				csv.append(MathOps.bytesToHex(start)+",");
+				csv.append(new String(start)+",");
 				csv.append(MathOps.bytesToHex(end)+",");
 			}
 			for(int j=0; j<steps-1; j++){
-				end = mathops.hash(mathops.reduce(end, j));
+				reduced = mathops.reduce(end, j);
+				end = mathops.hash(reduced);
+				if(export)csv.append(MathOps.bytesToHex(reduced)+",");
 				if(export)csv.append(MathOps.bytesToHex(end)+",");
 			}
 			chain[0] = start;
