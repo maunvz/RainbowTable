@@ -19,24 +19,24 @@ public class RainbowTableSearcher extends SwingWorker<Void, Integer>{
 	}
 	@Override
 	protected Void doInBackground() throws Exception {
-		display.setNK(table.chains.length, table.steps);
+		if(i==-1)display.setNK(table.chains.length, table.steps);
 		String pass = breakHash(hash);
 		ui.foundPass(pass, i);
 		return null;
 	}
 	public String breakHash(String hash){
-		display.setStatus("Searching....");
+		if(i==-1)display.setStatus("Searching....");
 		byte[] hashBytes = MathOps.hexToBytes(hash);
 		
 		int modifications = 0;	
 		while (modifications < table.steps) {
-			int index = searchA(hashBytes);
+			int index = searchB(hashBytes);
 			if (index != -1) {
 				return getPassword(index, modifications);
 			}				
 			hashBytes = mathops.hash(mathops.reduce(hashBytes));
 			modifications++;
-			display.setDone(modifications);
+			if(i==-1)display.setDone(modifications);
 		}
 		return "Not Found";
 	}

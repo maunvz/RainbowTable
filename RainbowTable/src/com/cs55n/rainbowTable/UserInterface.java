@@ -35,6 +35,8 @@ public class UserInterface extends JFrame{
 	GenerationDisplay display;
 	int times;
 	int done;
+	int correct;
+	int missing;
 	byte[][] starts;
 	byte[][] ends;
 	
@@ -113,13 +115,11 @@ public class UserInterface extends JFrame{
 		}
 		ends[i] = pass.getBytes();
 		done++;
-		if(done==times){
-			int correct = 0;
-			for(int j=0; j<times; j++)
-				if(MathOps.bytesEqual(starts[j],ends[j]))
-					correct++;
-			System.out.println(correct+"/"+times+" were found");
-		}
+		display.setNK(times, table.steps);
+		display.setDone(done);
+		if(MathOps.bytesEqual(starts[i],ends[i]))correct++;
+		if(ends[i].length==9)missing++;
+		display.status_label.setText(correct+"/"+times+" were found. "+missing+" were not found at all, "+(times-correct-missing)+" were conflicts.");
 	}
 	class GenerationDisplay extends JPanel{
 		private static final long serialVersionUID = 1L;
@@ -189,6 +189,8 @@ public class UserInterface extends JFrame{
 					
 					times = Integer.parseInt(JOptionPane.showInputDialog("How many to test?"));
 					done = 0;
+					correct = 0;
+					missing = 0;
 					starts = new byte[times][];
 					ends = new byte[times][];
 					

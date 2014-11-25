@@ -36,12 +36,12 @@ public class MathOps {
 	byte[] reduce(byte[] bytes){
 		byte[] reduced = new byte[passwordLength];
 		int[] holders = new int[passwordLength];
-		for(int i=0; i<5; i++)holders[0] += Math.abs(bytes[i]); reduced[0] = (byte)((holders[0]%26)+97);
-		for(int i=5; i<10; i++)holders[1] += Math.abs(bytes[i]); reduced[1] = (byte)((holders[1]%26)+97);
-		for(int i=10; i<15; i++)holders[2] += Math.abs(bytes[i]); reduced[2] = (byte)((holders[2]%26)+97);
-		for(int i=15; i<20; i++)holders[3] += Math.abs(bytes[i]); reduced[3] = (byte)((holders[3]%26)+97);
-		for(int i=20; i<26; i++)holders[4] += Math.abs(bytes[i]); reduced[4] = (byte)((holders[4]%26)+97);
-		for(int i=26; i<32; i++)holders[5] += Math.abs(bytes[i]); reduced[5] = (byte)((holders[5]%26)+97);
+		for(int i=0; i<5; i++)holders[0] += bytes[i]+128; reduced[0] = (byte)((holders[0]%26)+97);
+		for(int i=5; i<10; i++)holders[1] += bytes[i]+128; reduced[1] = (byte)((holders[1]%26)+97);
+		for(int i=10; i<15; i++)holders[2] += bytes[i]+128; reduced[2] = (byte)((holders[2]%26)+97);
+		for(int i=15; i<20; i++)holders[3] += bytes[i]+128; reduced[3] = (byte)((holders[3]%26)+97);
+		for(int i=20; i<26; i++)holders[4] += bytes[i]+128; reduced[4] = (byte)((holders[4]%26)+97);
+		for(int i=26; i<32; i++)holders[5] += bytes[i]+128; reduced[5] = (byte)((holders[5]%26)+97);
 		return reduced;
 	}
 	public static String hexToString(String hex) {
