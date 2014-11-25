@@ -72,9 +72,9 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 				csv.append(MathOps.bytesToHex(end)+",");
 			}
 			for(int j=0; j<steps-1; j++){
-				reduced = mathops.reduce(end, j);
+				reduced = mathops.reduce(end);
 				end = mathops.hash(reduced);
-				if(export)csv.append(MathOps.bytesToHex(reduced)+",");
+				if(export)csv.append(new String(reduced)+",");
 				if(export)csv.append(MathOps.bytesToHex(end)+",");
 			}
 			chain[0] = start;
@@ -92,9 +92,7 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	public static char[] getCharset(){
 		char[] charset = new char[26];
 		int index = 0;
-		//for(int i=65; i<=90; i++)charset[index++]=(char)i;//add capital letters
 		for(int i=97; i<=122; i++)charset[index++]=(char)i;//add lower case letters
-		//for(int i=48; i<=57; i++)charset[index++]=(char)i;//add numbers
 		return charset;
 	}
 	public static byte[] randomPassword(int passwordLength, char[] charset, Random rand){

@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -32,6 +33,10 @@ public class UserInterface extends JFrame{
 	TablePanel tablePanel;
 	SearchPanel searchPanel;
 	GenerationDisplay display;
+	int times;
+	int done;
+	byte[][] starts;
+	byte[][] ends;
 	
 	public UserInterface(){
 		super();
@@ -101,6 +106,21 @@ public class UserInterface extends JFrame{
 		tablePanel.setEnabled(false);
 		searchPanel.setEnabled(true);
 	}
+	public void foundPass(String pass, int i){
+		if(i==-1){
+			JOptionPane.showMessageDialog(this, pass);
+			return;
+		}
+		ends[i] = pass.getBytes();
+		done++;
+		if(done==times){
+			int correct = 0;
+			for(int j=0; j<times; j++)
+				if(MathOps.bytesEqual(starts[j],ends[j]))
+					correct++;
+			System.out.println(correct+"/"+times+" were found");
+		}
+	}
 	class GenerationDisplay extends JPanel{
 		private static final long serialVersionUID = 1L;
 		JLabel status_label;
@@ -147,6 +167,7 @@ public class UserInterface extends JFrame{
 		JLabel hash_label;
 		JTextField hash_field;
 		JButton search_button;
+		JButton test_button;
 		public SearchPanel(){
 			hash_label = new JLabel("Hash: ");
 			hash_field = new JTextField();
@@ -155,7 +176,27 @@ public class UserInterface extends JFrame{
 			search_button.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					new RainbowTableSearcher(hash_field.getText(), table, display, UserInterface.this).execute();
+					new RainbowTableSearcher(hash_field.getText(), table, display, UserInterface.this, -1).execute();
+				}
+			});
+			test_button = new JButton("Test");
+			test_button.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					char[] charset = RainbowTableGenerator.getCharset();
+					Random rand = new Random();
+					MathOps ops = new MathOps(6);
+					
+					times = Integer.parseInt(JOptionPane.showInputDialog("How many to test?"));
+					done = 0;
+					starts = new byte[times][];
+					ends = new byte[times][];
+					
+					for(int i=0; i<times; i++){
+						starts[i] = RainbowTableGenerator.randomPassword(6, charset, rand);
+						byte[] hash = ops.hash(starts[i]);
+						new RainbowTableSearcher(MathOps.bytesToHex(hash), table, display, UserInterface.this, i).execute();						
+					}
 				}
 			});
 			
@@ -163,6 +204,7 @@ public class UserInterface extends JFrame{
 			add(hash_label);
 			add(hash_field);
 			add(search_button);
+			add(test_button);
 		}
 		public void setEnabled(boolean enabled){
 			super.setEnabled(enabled);
@@ -204,11 +246,5 @@ public class UserInterface extends JFrame{
 	}
 	public static void main(String args[]){
 		new UserInterface();
-		/*
-		System.out.println("start");
-		long time = System.nanoTime();
-		//code to test
-		System.out.println("end: " + (System.nanoTime()-time)/1000000);
-		*/
 	}
 }

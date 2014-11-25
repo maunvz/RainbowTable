@@ -33,27 +33,25 @@ public class MathOps {
 	byte[] hash(byte[] strBytes){
 		return digest.digest(strBytes);
 	}
-	//returns a passwordLength byte long representation of bytes, using k to choose which bytes are used
-	//works for k up to (2^passwordLength+1)-2. After that, every 2^n-1 where n is greater than passwordLength will
-	//be the same as all the other 2^n-1's where n is greater than passwordLength
-	//currently max k is 510 when passwordLength is 8
-	byte[] reduce(byte[] bytes, int k){
-		int mask = 1;
-		for(int i=0; i<passwordLength; i++)mask*=2;
-		mask-=1;
-		mask = mask << 32-passwordLength;
-		mask = mask | k; //creates an int whose 32-bit representation has at least passwordLength 1's in it
-		
+	byte[] reduce(byte[] bytes){
 		byte[] reduced = new byte[passwordLength];
-		int byteNo = 0;
-		for(int i=0; i<32&&byteNo<passwordLength; i++){
-			if((mask & 1) == 1){
-				reduced[byteNo++] = bytes[i];
-			}
-			mask = mask >> 1;
-		}
+		int[] holders = new int[passwordLength];
+		for(int i=0; i<5; i++)holders[0] += Math.abs(bytes[i]); reduced[0] = (byte)((holders[0]%26)+97);
+		for(int i=5; i<10; i++)holders[1] += Math.abs(bytes[i]); reduced[1] = (byte)((holders[1]%26)+97);
+		for(int i=10; i<15; i++)holders[2] += Math.abs(bytes[i]); reduced[2] = (byte)((holders[2]%26)+97);
+		for(int i=15; i<20; i++)holders[3] += Math.abs(bytes[i]); reduced[3] = (byte)((holders[3]%26)+97);
+		for(int i=20; i<26; i++)holders[4] += Math.abs(bytes[i]); reduced[4] = (byte)((holders[4]%26)+97);
+		for(int i=26; i<32; i++)holders[5] += Math.abs(bytes[i]); reduced[5] = (byte)((holders[5]%26)+97);
 		return reduced;
 	}
+	public static String hexToString(String hex) {
+	    StringBuilder output = new StringBuilder();
+	    for (int i = 0; i < hex.length(); i+=2) {
+	        String str = hex.substring(i, i+2);
+	        output.append((char)Integer.parseInt(str, 16));
+	    }
+	    return output.toString();
+	}	
 	//converts bytes to a hex string for output
 	public static String bytesToHex(byte[] bytes) {
 	    char[] hexChars = new char[bytes.length * 2];
