@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.BoxLayout;
@@ -29,16 +30,19 @@ import javax.swing.JTextField;
 
 public class UserInterface extends JFrame{
 	private static final long serialVersionUID = 1L;
-	RainbowTable table;
+	ArrayList<RainbowTable> tables;
+	ArrayList<GenerationDisplay> displays;
+	JPanel displayPanel;
+	
 	TablePanel tablePanel;
 	SearchPanel searchPanel;
-	GenerationDisplay display;
 	int times;
-	int done;
-	int correct;
-	int missing;
+	int readyTables;
+	ArrayList<Integer> done;
+	ArrayList<Integer> correct;
 	byte[][] starts;
-	byte[][] ends;
+	byte[][][] ends;
+	boolean[] testCorrect;
 	
 	public UserInterface(){
 		super();
@@ -46,12 +50,16 @@ public class UserInterface extends JFrame{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
+		readyTables=0;
+		done = new ArrayList<Integer>();
+		correct = new ArrayList<Integer>();
 		
 		tablePanel = new TablePanel();
 		panel.add(tablePanel);
-		
-		display = new GenerationDisplay();
-		panel.add(display);
+		tables = new ArrayList<RainbowTable>();
+		displays = new ArrayList<GenerationDisplay>();
+		displayPanel = new JPanel();
+		panel.add(displayPanel);
 		
 		searchPanel = new SearchPanel();
 		searchPanel.setEnabled(false);
@@ -88,8 +96,14 @@ public class UserInterface extends JFrame{
 
 				final int n = Integer.parseInt(n_input.getText());
 				final int k = Integer.parseInt(k_input.getText());
+				
+				GenerationDisplay display = new GenerationDisplay();
+				displays.add(display);
+				displayPanel.add(display);
 				display.setNK(n, k);
-				RainbowTableGenerator gen = new RainbowTableGenerator(fc.getSelectedFile(), 6, n, k, display, this);
+				pack();
+
+				RainbowTableGenerator gen = new RainbowTableGenerator(fc.getSelectedFile(), 6, n, k, display, this, tables.size());
 				gen.export = csv_input.isSelected();
 				gen.execute();
 			} catch (NumberFormatException e){
@@ -101,25 +115,47 @@ public class UserInterface extends JFrame{
 		JFileChooser fc = new JFileChooser();
 		fc.showOpenDialog(this);
 		fc.getSelectedFile();
-		table = new RainbowTable(0, 0);
+		RainbowTable table = new RainbowTable(0, 0, tables.size());
+		tables.add(table);
+		
+		GenerationDisplay display = new GenerationDisplay();
+		displays.add(display);
+		displayPanel.add(display);		
+		pack();
+
 		new RainbowTableLoader(fc.getSelectedFile(), table, display, this).execute();
 	}
 	public void tableReady(){
-		tablePanel.setEnabled(false);
 		searchPanel.setEnabled(true);
+		readyTables++;
 	}
-	public void foundPass(String pass, int i){
+	public void foundPass(String pass, int i, int index){
 		if(i==-1){
-			JOptionPane.showMessageDialog(this, pass);
+			ends[index][0] = pass.getBytes();
+			done.set(0, done.get(0)+1);
+			if(done.get(0)==readyTables){
+				String str = "Not Found";
+				for(int j=0; j<tables.size(); j++){
+					if(ends[j][0]==null)continue;
+					if(ends[j][0].length!=9)
+						str=new String(ends[j][0]);					
+				}
+				JOptionPane.showMessageDialog(this, str);				
+			}
 			return;
 		}
-		ends[i] = pass.getBytes();
-		done++;
-		display.setNK(times, table.steps);
-		display.setDone(done);
-		if(MathOps.bytesEqual(starts[i],ends[i]))correct++;
-		if(ends[i].length==9)missing++;
-		display.status_label.setText(correct+"/"+times+" were found. "+missing+" were not found at all, "+(times-correct-missing)+" were conflicts.");
+		ends[index][i] = pass.getBytes();
+		done.set(index, done.get(index)+1);
+		displays.get(index).progress_bar.setMaximum(times);
+		displays.get(index).setDone(done.get(index));
+		if(MathOps.bytesEqual(starts[i],ends[index][i])){
+			correct.set(index, correct.get(index)+1);
+			testCorrect[i]=true;
+		}
+		
+		int totalCorrect = 0;
+		for(int j=0; j<times; j++)if(testCorrect[j])totalCorrect++;
+		displays.get(index).status_label.setText(correct.get(index)+"/"+times+" were found, total "+totalCorrect+"/"+times);
 	}
 	class GenerationDisplay extends JPanel{
 		private static final long serialVersionUID = 1L;
@@ -176,7 +212,11 @@ public class UserInterface extends JFrame{
 			search_button.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					new RainbowTableSearcher(hash_field.getText(), table, display, UserInterface.this, -1).execute();
+					done.clear();
+					done.add(0);
+					ends = new byte[tables.size()][1][];
+					for(int i=0; i<tables.size(); i++)
+						new RainbowTableSearcher(hash_field.getText(), tables.get(i), displays.get(i), UserInterface.this, -1).execute();
 				}
 			});
 			test_button = new JButton("Test");
@@ -188,16 +228,20 @@ public class UserInterface extends JFrame{
 					MathOps ops = new MathOps(6);
 					
 					times = Integer.parseInt(JOptionPane.showInputDialog("How many to test?"));
-					done = 0;
-					correct = 0;
-					missing = 0;
+					done.clear();correct.clear();
+					for(int i=0; i<tables.size(); i++){
+						done.add(0);correct.add(0);
+					}
 					starts = new byte[times][];
-					ends = new byte[times][];
-					
-					for(int i=0; i<times; i++){
-						starts[i] = RainbowTableGenerator.randomPassword(6, charset, rand);
-						byte[] hash = ops.hash(starts[i]);
-						new RainbowTableSearcher(MathOps.bytesToHex(hash), table, display, UserInterface.this, i).execute();						
+					ends = new byte[tables.size()][times][];
+					testCorrect = new boolean[times];
+					for(int index=0; index<tables.size(); index++){
+						for(int i=0; i<times; i++){
+							starts[i] = RainbowTableGenerator.randomPassword(6, charset, rand);
+							byte[] hash = ops.hash(starts[i]);
+							for(int j=0; j<tables.size(); j++)
+								new RainbowTableSearcher(MathOps.bytesToHex(hash), tables.get(j), displays.get(j), UserInterface.this, i).execute();
+						}						
 					}
 				}
 			});
@@ -248,5 +292,13 @@ public class UserInterface extends JFrame{
 	}
 	public static void main(String args[]){
 		new UserInterface();
+		/*
+		MathOps mathops = new MathOps(6);
+		byte[] hash = mathops.hash("vctqiu".getBytes());
+		for(int i=0; i<10; i++){
+			byte[] reduced = mathops.reduce(hash, i);
+			System.out.println(new String(reduced));			
+		}
+		*/
 	}
 }

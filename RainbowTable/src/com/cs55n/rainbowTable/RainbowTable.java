@@ -14,10 +14,14 @@ public class RainbowTable {
 	//last index that is created, only used when creating a table
 	int lastIndex;
 	int steps;
-	public RainbowTable(int n, int steps){
+	int index;
+	boolean ready;
+	public RainbowTable(int n, int steps, int index){
 		chains = new byte[n][][];
 		lastIndex=0;
 		this.steps = steps;
+		this.index=index;
+		ready=false;
 	}
 	public void addChain(byte[][] chain){
 		chains[lastIndex++]=chain;

@@ -19,35 +19,50 @@ public class RainbowTableSearcher extends SwingWorker<Void, Integer>{
 	}
 	@Override
 	protected Void doInBackground() throws Exception {
+		if(!table.ready)return null;
 		if(i==-1)display.setNK(table.chains.length, table.steps);
-		String pass = breakHash(hash);
-		ui.foundPass(pass, i);
+		String pass = "Not Found";
+		try{
+		pass = breakHash(hash);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		ui.foundPass(pass, i, table.index);
 		return null;
 	}
-	public String breakHash(String hash){
+	public String breakHash(String hash) throws Exception{
 		if(i==-1)display.setStatus("Searching....");
 		byte[] hashBytes = MathOps.hexToBytes(hash);
+		int modifications = table.steps-1;	
 		
-		int modifications = 0;	
-		while (modifications < table.steps) {
-			int index = searchB(hashBytes);
+		while (modifications > 0) {
+			byte[] hashStep=MathOps.copyBytes(hashBytes);
+			byte[] reduceStep = null;
+			
+			for(int step = modifications; step < table.steps-1; step++){
+				reduceStep = mathops.reduce(hashStep, step);
+				hashStep = mathops.hash(reduceStep);
+			}
+			int index = searchB(hashStep);
 			if (index != -1) {
-				return getPassword(index, modifications);
-			}				
-			hashBytes = mathops.hash(mathops.reduce(hashBytes));
-			modifications++;
+				String str = getPassword(index, modifications, hashBytes);
+				if(!str.equals("Not Found"))return str;
+			}
+			modifications--;
 			if(i==-1)display.setDone(modifications);
 		}
 		return "Not Found";
 	}
-	public String getPassword(int index, int modNo){
+	public String getPassword(int index, int modNo, byte[] hashBytes){
 		byte[] matchedChain = table.chains[index][0];
-		for (int j = 1; j < table.steps-modNo; j++) {
+		for (int j = 0; j < table.steps; j++) {
 			matchedChain = mathops.hash(matchedChain);
-			matchedChain = mathops.reduce(matchedChain);
-			//System.out.println(new String(matchedChain));
+			matchedChain = mathops.reduce(matchedChain, j);
+			if(MathOps.bytesEqual(mathops.hash(matchedChain), hashBytes)){
+				return new String(matchedChain);
+			}
 		}
-		return new String(matchedChain);
+		return "Not Found";
 	}
 	//return -1 if not found, or index of chain if found
 	public int searchA(byte[] key){
@@ -55,16 +70,7 @@ public class RainbowTableSearcher extends SwingWorker<Void, Integer>{
 			if(MathOps.bytesEqual(key, table.chains[i][1]))return i;
 		}
 		return -1;
-	}
-	
-	public String toString(byte[] array) {
-		String result = "";
-		for (int i = 0; i < array.length; i++) {
-			result += (char)array[i];
-		}
-		return result;
-	}
-	
+	}	
 	public int searchB(byte[] key) {
         return searchB(key, 0, table.chains.length);
     }

@@ -26,6 +26,7 @@ public class RainbowTableLoader extends SwingWorker<Void, Integer>{
 	protected void done(){
 		super.done();
 		ui.tableReady();
+		table.ready=true;
 	}
 	public void loadFromFile(){
 		try {

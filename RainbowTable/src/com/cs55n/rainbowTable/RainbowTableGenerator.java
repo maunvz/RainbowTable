@@ -23,7 +23,8 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	UserInterface ui;
 	boolean export;
 	StringBuffer csv;
-	public RainbowTableGenerator(File file,int passwordLength, int chains, int steps, UserInterface.GenerationDisplay display, UserInterface ui){
+	int index;
+	public RainbowTableGenerator(File file,int passwordLength, int chains, int steps, UserInterface.GenerationDisplay display, UserInterface ui, int index){
 		super();
 		this.file = file;
 		this.passwordLength = passwordLength;
@@ -31,6 +32,7 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 		this.steps = steps;
 		this.ui = ui;
 		this.display = display;
+		this.index=index;
 		export = false;
 	}
 	protected Void doInBackground() throws Exception {
@@ -57,7 +59,7 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 	public void generate(){
 		display.setStatus("Generating chains");
 		MathOps mathops = new MathOps(passwordLength);
-		RainbowTable table = new RainbowTable(chains, steps);
+		RainbowTable table = new RainbowTable(chains, steps, index);
 		Random rand = new Random();
 		char[] charset = getCharset();
 		csv = new StringBuffer();
@@ -72,7 +74,7 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 				csv.append(MathOps.bytesToHex(end)+",");
 			}
 			for(int j=0; j<steps-1; j++){
-				reduced = mathops.reduce(end);
+				reduced = mathops.reduce(end, j);
 				end = mathops.hash(reduced);
 				if(export)csv.append(new String(reduced)+",");
 				if(export)csv.append(MathOps.bytesToHex(end)+",");
@@ -86,8 +88,9 @@ public class RainbowTableGenerator extends SwingWorker<Void, Integer>{
 		display.setStatus("Sorting chains");
 		new RainbowTableSorter(table, display, ui).execute();
 		display.setStatus("Saving chains");
-		new RainbowTableSaver(file, table, display, ui).execute();;
-		ui.table = table;
+		new RainbowTableSaver(file, table, display, ui).execute();
+		ui.tables.add(table);
+		table.ready=true;
 	}
 	public static char[] getCharset(){
 		char[] charset = new char[26];

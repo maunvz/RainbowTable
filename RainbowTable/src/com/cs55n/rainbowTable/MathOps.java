@@ -33,15 +33,44 @@ public class MathOps {
 	byte[] hash(byte[] strBytes){
 		return digest.digest(strBytes);
 	}
+	//returns a valid password representation of hash
+	/*
 	byte[] reduce(byte[] bytes){
 		byte[] reduced = new byte[passwordLength];
 		int[] holders = new int[passwordLength];
-		for(int i=0; i<5; i++)holders[0] += bytes[i]+128; reduced[0] = (byte)((holders[0]%26)+97);
-		for(int i=5; i<10; i++)holders[1] += bytes[i]+128; reduced[1] = (byte)((holders[1]%26)+97);
-		for(int i=10; i<15; i++)holders[2] += bytes[i]+128; reduced[2] = (byte)((holders[2]%26)+97);
-		for(int i=15; i<20; i++)holders[3] += bytes[i]+128; reduced[3] = (byte)((holders[3]%26)+97);
-		for(int i=20; i<26; i++)holders[4] += bytes[i]+128; reduced[4] = (byte)((holders[4]%26)+97);
-		for(int i=26; i<32; i++)holders[5] += bytes[i]+128; reduced[5] = (byte)((holders[5]%26)+97);
+		for(int i=0; i<5; i++)holders[0] += bytes[i]+128;
+		for(int i=5; i<10; i++)holders[1] += bytes[i]+128;
+		for(int i=10; i<15; i++)holders[2] += bytes[i]+128;
+		for(int i=15; i<20; i++)holders[3] += bytes[i]+128;
+		for(int i=20; i<26; i++)holders[4] += bytes[i]+128;
+		for(int i=26; i<32; i++)holders[5] += bytes[i]+128;
+		holders[0] += holders[1]%(4+holders[2]/10);
+		holders[2] += holders[3]%(7+holders[3]/2);
+		holders[4] += holders[5]%(23+holders[4]/5);
+		
+		reduced[0] = (byte)((holders[0]%26)+97);
+		reduced[1] = (byte)((holders[1]%26)+97);
+		reduced[2] = (byte)((holders[2]%26)+97);
+		reduced[3] = (byte)((holders[3]%26)+97);
+		reduced[4] = (byte)((holders[4]%26)+97);
+		reduced[5] = (byte)((holders[5]%26)+97);
+		return reduced;
+	}*/
+	byte[] reduce(byte[] bytes, int k){
+		int mask = 1;
+		for(int i=0; i<passwordLength; i++)mask*=2;
+		mask-=1;
+		mask = mask << 32-passwordLength;
+		mask = mask | k; //creates an int whose 32-bit representation has at least passwordLength 1's in it
+		
+		byte[] reduced = new byte[passwordLength];
+		int byteNo = 0;
+		for(int i=0; i<32&&byteNo<passwordLength; i++){
+			if((mask & 1) == 1){
+				reduced[byteNo++] = (byte)(97+((bytes[i]+128)%26));
+			}
+			mask = mask >> 1;
+		}
 		return reduced;
 	}
 	public static String hexToString(String hex) {
@@ -88,5 +117,13 @@ public class MathOps {
 			if(b2[i]>b1[i])return -1;
 		}
 		return 0;
+	}
+	//copy an array of bytes
+	public static byte[] copyBytes(byte[] arr){
+		byte[] copy = new byte[arr.length];
+		for(int i=0; i<arr.length; i++){
+			copy[i]=arr[i];
+		}
+		return copy;
 	}
 }
